@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 import statistics, time
 
+from .observability import percentile
+
 @dataclass
 class MetricSeries:
     name: str
@@ -13,8 +15,15 @@ class MetricSeries:
         if not self.values:
             return {'count': 0}
         xs = sorted(self.values)
-        q = lambda p: xs[min(len(xs) - 1, int((len(xs) - 1) * p / 100.0))]
-        return {'count': len(xs), 'min': xs[0], 'max': xs[-1], 'mean': statistics.fmean(xs), 'p50': q(0.5), 'p95': q(0.95), 'p99': q(0.99)}
+        return {
+            'count': len(xs),
+            'min': xs[0],
+            'max': xs[-1],
+            'mean': statistics.fmean(xs),
+            'p50': percentile(xs, 0.5),
+            'p95': percentile(xs, 0.95),
+            'p99': percentile(xs, 0.99),
+        }
 
 class Registry:
 

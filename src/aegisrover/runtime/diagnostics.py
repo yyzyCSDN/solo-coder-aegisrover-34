@@ -1,5 +1,6 @@
 from collections import Counter
-import math
+
+from aegisrover.analysis.observability import percentile
 
 
 def queue_pressure(depth, capacity):
@@ -47,8 +48,7 @@ def latency_budget(samples, budget):
     if not values:
         return {'count': 0, 'over': 0, 'p95': None}
     over = sum(1 for value in values if value > budget)
-    index = min(len(values) - 1, int((len(values) - 1) * 0.95))
-    return {'count': len(values), 'over': over, 'p95': values[index]}
+    return {'count': len(values), 'over': over, 'p95': percentile(values, 0.95)}
 
 
 def saturation_ratio(commands, limit):
